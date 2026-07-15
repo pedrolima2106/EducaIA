@@ -1,40 +1,29 @@
 # ==============================================
-# Ignorar arquivos do Backend (.NET / C#)
+# Apenas arquivos temporários do Backend (.NET)
 # ==============================================
 [Bb]in/
 [Oo]bj/
 *.user
-*.userosscache
-*.sln.docstates
 *.suo
-*.cache
 *.pdb
 *.dll
 *.exe
-*.xml
 *.db
-*.mdf
-*.ldf
 appsettings.*.json
 !appsettings.json
 Properties/launchSettings.json
 
 # ==============================================
-# Ignorar arquivos do Frontend (React / Node)
+# Apenas arquivos temporários do Frontend (React)
 # ==============================================
-node_modules/
-build/
-dist/
-.env
-.env.local
-.DS_Store
+educaia-frontend/node_modules/
+educaia-frontend/.env
+educaia-frontend/dist/
+educaia-frontend/build/
 *.log
+.DS_Store
 
 # ==============================================
-# Outros arquivos locais
+# Arquivos do VS Code (opcional)
 # ==============================================
 .vscode/
-.idea/
-*.swp
-*.swo
-*~
