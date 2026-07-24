@@ -12,7 +12,7 @@ export default function Painel() {
   const [materiais, setMateriais] = useState([]);
   const [mostrarGerador, setMostrarGerador] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const [modoVisualizacao, setModoVisualizacao] = useState("texto"); // "texto" ou "formatado"
+  const [modoVisualizacao, setModoVisualizacao] = useState("texto");
   const [form, setForm] = useState({
     id: "",
     titulo: "",
@@ -55,6 +55,14 @@ export default function Painel() {
 
     setCarregando(true);
     try {
+      console.log("📤 Enviando dados para API:", {
+        serie: form.serie,
+        disciplina: form.disciplina,
+        duracao: form.duracao || "1 aula",
+        tema: form.tema,
+        objetivos: form.objetivos
+      });
+
       const res = await axios.post("http://localhost:5276/api/Gerador/plano-aula", {
         serie: form.serie,
         disciplina: form.disciplina,
@@ -63,15 +71,20 @@ export default function Painel() {
         objetivos: form.objetivos
       });
 
+      console.log("📥 Resposta recebida da API:", res.data);
+
+      // ✅ CORREÇÃO PRINCIPAL: ACEITA MAIÚSCULO E MINÚSCULO
       setForm(prev => ({
         ...prev,
-        titulo: res.data.Titulo,
-        conteudo: res.data.Conteudo
+        titulo: res.data.Titulo || res.data.titulo || `Plano de Aula: ${form.tema}`,
+        conteudo: res.data.Conteudo || res.data.conteudo || "Nenhum conteúdo foi gerado pela IA."
       }));
+      
       setMostrarGerador(true);
-      setModoVisualizacao("formatado"); // Já abre formatado por padrão
+      setModoVisualizacao("formatado");
     } catch (err) {
-      console.error("Erro completo:", err);
+      console.error("❌ Erro completo:", err);
+      console.error("📦 Detalhes do erro:", err.response?.data);
       const msg = err.response?.data?.Erro || err.response?.data?.Mensagem || err.message || "Verifique se a API está rodando";
       alert("Erro ao gerar plano: " + msg);
     } finally {
@@ -205,7 +218,6 @@ export default function Painel() {
 
   return (
     <div className="pagina-painel">
-      {/* Cabeçalho */}
       <header className="cabecalho">
         <h1>EducaIA</h1>
         <div className="usuario-logado">
@@ -215,7 +227,6 @@ export default function Painel() {
       </header>
 
       <main className="conteudo-painel">
-        {/* Seção Gerador de Plano */}
         <section className="secao-gerador">
           <h2>🤖 Gerador Inteligente de Planos de Aula</h2>
           <p>Gere planos completos, formatados e exportáveis em PDF em segundos</p>
@@ -230,7 +241,6 @@ export default function Painel() {
           )}
         </section>
 
-        {/* Formulário */}
         {mostrarGerador && (
           <section className="form-material">
             <h3>{form.id ? "✏ Editar Material" : "📄 Novo Material"}</h3>
@@ -325,7 +335,6 @@ export default function Painel() {
               </select>
             </div>
 
-            {/* Alternância de visualização */}
             {form.conteudo && (
               <div style={{ marginBottom: "16px", display: "flex", gap: "12px", alignItems: "center" }}>
                 <span style={{ fontWeight: "500", color: "#374151" }}>Visualização:</span>
@@ -416,7 +425,6 @@ export default function Painel() {
           </section>
         )}
 
-        {/* Lista de Materiais */}
         <section className="secao-materiais">
           <h3>📚 Meus Materiais</h3>
 
@@ -431,9 +439,10 @@ export default function Painel() {
                 <div key={mat.id} className="card-material">
                   <h4>{mat.titulo}</h4>
                   <span className="tipo-material">{mat.tipo}</span>
-                  {mat.dataCriacao && (
+                  {/* ✅ CORREÇÃO DA DATA: ACEITA AMBOS OS NOMES */}
+                  {(mat.DataCriacao || mat.dataCriacao) && (
                     <div className="data-material">
-                      📅 {new Date(mat.dataCriacao).toLocaleDateString("pt-BR")}
+                      📅 {new Date(mat.DataCriacao || mat.dataCriacao).toLocaleDateString("pt-BR")}
                     </div>
                   )}
                   <div className="acoes-card">

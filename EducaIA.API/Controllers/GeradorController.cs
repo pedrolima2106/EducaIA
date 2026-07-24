@@ -8,10 +8,12 @@ namespace EducaIA.API.Controllers
     public class GeradorController : ControllerBase
     {
         private readonly IGeradorPlanoAula _gerador;
+        private readonly ILogger<GeradorController> _logger;
 
-        public GeradorController(IGeradorPlanoAula gerador)
+        public GeradorController(IGeradorPlanoAula gerador, ILogger<GeradorController> logger)
         {
             _gerador = gerador;
+            _logger = logger;
         }
 
         [HttpPost("plano-aula")]
@@ -26,6 +28,9 @@ namespace EducaIA.API.Controllers
 
             try
             {
+                _logger.LogInformation("📥 Gerando plano: Série={Serie}, Disciplina={Disciplina}, Tema={Tema}",
+                    dados.Serie, dados.Disciplina, dados.Tema);
+
                 var conteudo = await _gerador.GerarAsync(
                     dados.Serie,
                     dados.Disciplina,
@@ -34,16 +39,22 @@ namespace EducaIA.API.Controllers
                     dados.Objetivos
                 );
 
+                _logger.LogInformation("✅ Plano gerado com sucesso! Tamanho do conteúdo: {Caracteres} caracteres",
+                    conteudo?.Length ?? 0);
+
                 return Ok(new
                 {
+                    Sucesso = true,
                     Titulo = $"Plano de Aula: {dados.Tema}",
                     Conteudo = conteudo
                 });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "❌ Erro ao gerar plano");
                 return StatusCode(500, new
                 {
+                    Sucesso = false,
                     Erro = ex.Message,
                     Detalhe = ex.InnerException?.Message
                 });
